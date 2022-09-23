@@ -7,6 +7,8 @@ HTTP_CFG="000-default.conf"
 PXE_CFG="default"
 ATUO_INSTALL_CFG=""
 
+PXE_NIC_GATEWAY=172.16.0.1
+
 
 function install_tftp_service()
 {
@@ -56,7 +58,7 @@ function create_dhcp_config()
     ipSplit=($pxe_server_ip)
     IFS="$OLD_IFS"
     ip_range_start=${ipSplit[0]}.${ipSplit[1]}.${ipSplit[2]}.10
-    ip_range_end=${ipSplit[0]}.${ipSplit[1]}.${ipSplit[2]}.20
+    ip_range_end=${ipSplit[0]}.${ipSplit[1]}.${ipSplit[2]}.200
     ip_bcast=${ipSplit[0]}.${ipSplit[1]}.${ipSplit[2]}.255
     netInterfaceIpSeg=${ipSplit[0]}.${ipSplit[1]}.${ipSplit[2]}.0
     netInterfaceMask=255.255.255.0
@@ -65,14 +67,14 @@ function create_dhcp_config()
 INTERFACESv6=\"${netInterface}\"
 " > $dhcpServerCfgFile
 
-    echo "option domain-name \"autopxe.com\";
-option domain-name-servers srv.autopxe.com;
+    echo "option domain-name \"ows.us\";
+option domain-name-servers srv.ows.us;
 default-lease-time 600;
 max-lease-time 7200;
 ddns-update-style none;
 subnet ${netInterfaceIpSeg} netmask ${netInterfaceMask} {
     range ${ip_range_start} ${ip_range_end};
-    option routers $pxe_server_ip;
+    option routers $PXE_NIC_GATEWAY;
     option subnet-mask ${netInterfaceMask};
     option domain-name-servers $pxe_server_ip;
     option ntp-servers $pxe_server_ip;
@@ -221,9 +223,9 @@ function check_all_service()
 
 function main()
 {
-    iso_img=$1
-    nic=$2
-    pxe_ip="192.168.1.1"
+    nic=$1
+    iso_img=$2
+    pxe_ip="172.16.0.2"
     pxe_mask_len="24"
     tftp_root_dir="TftpDir"
     http_root_dir="HttpDir"
