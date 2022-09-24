@@ -8,6 +8,7 @@ PXE_CFG="default"
 ATUO_INSTALL_CFG=""
 
 PXE_NIC_GATEWAY=172.16.0.1
+PXE_NIC_DNS=8.8.8.8
 
 
 function install_tftp_service()
@@ -76,7 +77,7 @@ subnet ${netInterfaceIpSeg} netmask ${netInterfaceMask} {
     range ${ip_range_start} ${ip_range_end};
     option routers $PXE_NIC_GATEWAY;
     option subnet-mask ${netInterfaceMask};
-    option domain-name-servers $pxe_server_ip;
+    option domain-name-servers $PXE_NIC_DNS;
     option ntp-servers $pxe_server_ip;
     option netbios-name-servers $pxe_server_ip;
     option broadcast-address ${ip_bcast};
@@ -177,19 +178,6 @@ function prepare_ubuntu_204_pxe_file()
     umount ./tmp
     rm -rf tmp
 }
-function prepare_ubuntu_204_auto_install_cfg()
-{
-    cat > user-data << 'EOF'
-#cloud-config
-autoinstall:
-  version: 1
-  identity:
-    hostname: ubuntu-server
-    password: "$6$WcFFHwRr$JDJVf4gKzLugtNOcPrvCc.XcOddfT6TK8sSfIlUoLAKzJWJvAnThw4IR4TnKAcYBJpob93CKEVbLsMbc4h3.j1"
-    username: ubuntu
-EOF
-    touch meta-data
-}
 function prepare_pxe_env()
 {
     iso=$1
@@ -201,7 +189,8 @@ function prepare_pxe_env()
 function prepare_auto_install_env()
 {
     httpdir=$1
-    prepare_ubuntu_204_auto_install_cfg
+    touch meta-data
+    
     cp -rf user-data $httpdir
     cp -rf meta-data $httpdir
 }

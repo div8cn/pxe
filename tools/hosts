@@ -1,0 +1,7 @@
+[os]
+#172.16.0.106
+
+[os:vars]
+ansible_ssh_user=ubuntu
+ansible_ssh_pass='Ows888#$'
+ansible_sudo_pass='Ows888#$'

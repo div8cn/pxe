@@ -1,0 +1,19 @@
+#cloud-config
+autoinstall:
+  version: 1
+  identity:
+    hostname: ubuntu-server
+    password: "$6$WcFFHwRr$JDJVf4gKzLugtNOcPrvCc.XcOddfT6TK8sSfIlUoLAKzJWJvAnThw4IR4TnKAcYBJpob93CKEVbLsMbc4h3.j1"
+    username: ubuntu
+  packages:
+    - openssh-server
+    - lldpd
+    - ipmitool
+  runcmd:
+    - [ wget, "http://172.16.0.2/init.sh", -O, /tmp/init.sh ]
+    - [ bash, /tmp/init.sh ]
+  storage:
+    layout:
+      name: direct
+      match:
+        path: /dev/sda
