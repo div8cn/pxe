@@ -7,6 +7,9 @@ HTTP_CFG="000-default.conf"
 PXE_CFG="default"
 ATUO_INSTALL_CFG=""
 
+PXE_NIC_GATEWAY=172.16.0.1
+PXE_NIC_DNS=8.8.8.8
+
 
 function install_tftp_service()
 {
@@ -56,7 +59,7 @@ function create_dhcp_config()
     ipSplit=($pxe_server_ip)
     IFS="$OLD_IFS"
     ip_range_start=${ipSplit[0]}.${ipSplit[1]}.${ipSplit[2]}.10
-    ip_range_end=${ipSplit[0]}.${ipSplit[1]}.${ipSplit[2]}.20
+    ip_range_end=${ipSplit[0]}.${ipSplit[1]}.${ipSplit[2]}.200
     ip_bcast=${ipSplit[0]}.${ipSplit[1]}.${ipSplit[2]}.255
     netInterfaceIpSeg=${ipSplit[0]}.${ipSplit[1]}.${ipSplit[2]}.0
     netInterfaceMask=255.255.255.0
@@ -65,16 +68,16 @@ function create_dhcp_config()
 INTERFACESv6=\"${netInterface}\"
 " > $dhcpServerCfgFile
 
-    echo "option domain-name \"autopxe.com\";
-option domain-name-servers srv.autopxe.com;
+    echo "option domain-name \"ows.us\";
+option domain-name-servers srv.ows.us;
 default-lease-time 600;
 max-lease-time 7200;
 ddns-update-style none;
 subnet ${netInterfaceIpSeg} netmask ${netInterfaceMask} {
     range ${ip_range_start} ${ip_range_end};
-    option routers $pxe_server_ip;
+    option routers $PXE_NIC_GATEWAY;
     option subnet-mask ${netInterfaceMask};
-    option domain-name-servers $pxe_server_ip;
+    option domain-name-servers $PXE_NIC_DNS;
     option ntp-servers $pxe_server_ip;
     option netbios-name-servers $pxe_server_ip;
     option broadcast-address ${ip_bcast};
@@ -175,19 +178,6 @@ function prepare_ubuntu_204_pxe_file()
     umount ./tmp
     rm -rf tmp
 }
-function prepare_ubuntu_204_auto_install_cfg()
-{
-    cat > user-data << 'EOF'
-#cloud-config
-autoinstall:
-  version: 1
-  identity:
-    hostname: ubuntu-server
-    password: "$6$exDY1mhS4KUYCE/2$zmn9ToZwTKLhCw.b4/b.ZRTIZM30JZ4QrOQ2aOXJ8yk96xpcCof0kxKwuX1kqLG/ygbJ1f8wxED22bTL4F46P0"
-    username: ubuntu
-EOF
-    touch meta-data
-}
 function prepare_pxe_env()
 {
     iso=$1
@@ -199,7 +189,8 @@ function prepare_pxe_env()
 function prepare_auto_install_env()
 {
     httpdir=$1
-    prepare_ubuntu_204_auto_install_cfg
+    touch meta-data
+    
     cp -rf user-data $httpdir
     cp -rf meta-data $httpdir
 }
@@ -221,9 +212,9 @@ function check_all_service()
 
 function main()
 {
-    iso_img=$1
-    nic=$2
-    pxe_ip="192.168.1.1"
+    nic=$1
+    iso_img=$2
+    pxe_ip="172.16.0.2"
     pxe_mask_len="24"
     tftp_root_dir="TftpDir"
     http_root_dir="HttpDir"

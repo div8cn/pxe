@@ -1,0 +1,22 @@
+---
+#get mp
+- hosts: os
+  gather_facts: false
+  remote_user: ubuntu
+  become: yes
+  become_method: sudo
+  tasks:
+
+    - apt:
+        name: ['nfs-common']
+        state: present
+        force: yes
+        update_cache: yes
+    - copy:
+        src: "init.sh"
+        dest: "/tmp/init.sh"
+        mode: 755
+    - shell: "/tmp/init.sh"
+
+
+    - shell: hostname
