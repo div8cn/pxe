@@ -9,6 +9,7 @@ autoinstall:
     - openssh-server
     - lldpd
     - ipmitool
+    - chrony
   runcmd:
     - [ wget, "http://172.16.0.2/init.sh", -O, /tmp/init.sh ]
     - [ bash, /tmp/init.sh ]
